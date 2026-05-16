@@ -1,0 +1,275 @@
+/* --- CORE VARIABLE ASSIGNMENTS --- */
+:root {
+  --p-color: #0056b3;
+  --p-hover: #004085;
+  --t-main: #212529;
+  --t-mute: #5a6268;
+  --p-bg: #f0f2f5;
+  --c-bg: #ffffff;
+  --r-radius: 8px;
+  --f-family: system-ui, sans-serif;
+}
+
+/* --- STRUCTURE & LAYOUT --- */
+.player-wrapper {
+  font-family: var(--f-family);
+  background-color: var(--p-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.player-header {
+  background-color: var(--c-bg);
+  border-bottom: 1px solid #e1e4e8;
+  padding: 15px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-content {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-container {
+  max-width: 800px;
+  margin: 12px auto 0 auto;
+  background-color: #e9ecef;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background-color: var(--p-color);
+  height: 100%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-canvas {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 10px;
+}
+
+.player-card {
+  background-color: var(--c-bg);
+  width: 100%;
+  max-width: 650px;
+  padding: 35px;
+  border-radius: var(--r-radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- INTERACTIVE SELECTION BUTTONS --- */
+.option-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 30px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-btn, .confidence-btn {
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--r-radius);
+  font-size: 15px;
+  background-color: var(--c-bg);
+  color: var(--t-main);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* FIX: Always keep the border at 2px to stop layout jumping */
+  border: 2px solid #e1e4e8; 
+}
+
+/* Smooth Hover Profiles */
+.option-btn:not(:disabled):hover, .confidence-btn:not(:disabled):hover {
+  background-color: #f8fafd;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* Unifed Selection Colors across all interactive elements */
+.option-btn[aria-pressed="true"], .confidence-btn[aria-pressed="true"] {
+  border-color: var(--p-color) !important;
+  background-color: #f0f7ff !important;
+  color: var(--t-main) !important;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.06);
+}
+
+/* --- CONFIDENCE GRID AREA --- */
+.confidence-section {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: var(--r-radius);
+  border: 1px solid #eef1f4;
+  margin: auto 0 30px 0;
+}
+
+.confidence-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.confidence-btn {
+  flex: 1 1 160px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* --- PRIMARY CORE ACTIONS --- */
+.action-btn {
+  padding: 14px 28px;
+  background-color: var(--p-color);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-radius);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.action-btn:hover:not(:disabled) {
+  background-color: var(--p-hover);
+}
+
+/* --- HARDWARE ACCELERATED ANIMATED FEEDBACK HOOD --- */
+.feedback-container {
+  padding: 20px;
+  border-radius: var(--r-radius);
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  outline: none;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- RESPONSIVE PHONE OVERRIDES --- */
+@media (max-width: 600px) {
+  .player-card {
+    border-radius: 0px !important;
+    margin: 0px !important;
+    min-height: calc(100vh - 85px);
+  }
+}
+
+/* --- AUTHORING PANEL STYLING --- */
+.authoring-panel {
+  background-color: #22252a;
+  color: #fff;
+  padding: 20px;
+  font-size: 13px;
+  border-bottom: 4px solid #343a40;
+}
+.authoring-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.control-group label { color: #aaa; font-weight: 500; }
+.control-group input[type="color"] { border: none; width: 50px; height: 30px; cursor: pointer; }
+.control-group select { padding: 5px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; }
+
+/* --- AUTHORING CANVAS STYLES --- */
+.mode-navbar {
+  background-color: #1a1d20;
+  padding: 10px 20px;
+  display: flex;
+  gap: 15px;
+  border-bottom: 2px solid #2d3238;
+}
+
+.mode-btn {
+  background: none;
+  border: 1px solid #495057;
+  color: #cae0f5;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.mode-btn:hover {
+  background-color: #2b3035;
+  color: #fff;
+}
+
+.mode-btn[aria-current="page"] {
+  background-color: var(--p-color);
+  border-color: var(--p-color);
+  color: #fff;
+}
+
+.author-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--t-main);
+}
+
+.form-input {
+  padding: 12px;
+  border: 2px solid #e1e4e8;
+  border-radius: var(--r-radius);
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--p-color);
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: var(--r-radius);
+  border: 1px solid #eef1f4;
+}
+
+.radio-custom {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
