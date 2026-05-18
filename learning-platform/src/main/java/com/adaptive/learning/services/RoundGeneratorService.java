@@ -3,6 +3,8 @@ package com.adaptive.learning.services;
 import com.adaptive.learning.models.*;
 import com.adaptive.learning.repositories.*;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +17,8 @@ public class RoundGeneratorService {
     private final CourseRepository courseRepository;
 
     public RoundGeneratorService(QuestionRepository questionRepository,
-                                 AttemptLedgerRepository attemptLedgerRepository,
-                                 CourseRepository courseRepository) {
+            AttemptLedgerRepository attemptLedgerRepository,
+            CourseRepository courseRepository) {
         this.questionRepository = questionRepository;
         this.attemptLedgerRepository = attemptLedgerRepository;
         this.courseRepository = courseRepository;
@@ -26,31 +28,50 @@ public class RoundGeneratorService {
      * Generates a tailored list of questions for a student's learning round.
      */
     public List<Question> generateRoundQuestions(Long userId, Long courseId) {
-        // 1. Fetch the course rules to determine batch size and randomization settings
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found with ID: " + courseId));
+                .orElseThrow(() -> new RuntimeException("Course not found"));
         int limit = course.getRoundSize();
 
-        // 2. Scan the ledger to find what this user has already MASTERED
+        // 1. Identify already MASTERED questions to exclude them from the fresh pool
         List<Long> masteredQuestionIds = attemptLedgerRepository
-                .findQuestionIdsByUserIdAndMatrixResult(userId, MatrixResult.MASTERED);
+                .findQuestionIdsByUserIdAndMatrixResultAndCourseId(userId, MatrixResult.MASTERED, courseId);
 
-        // 3. Pull the remaining pool of adaptive questions
-        List<Question> rawPool;
-        if (masteredQuestionIds.isEmpty()) {
-            rawPool = questionRepository.findByLearningObjectiveCourseIdAndPoolType(courseId, PoolType.ADAPTIVE_ROUND);
-        } else {
-            rawPool = questionRepository.findAvailableQuestions(courseId, PoolType.ADAPTIVE_ROUND, masteredQuestionIds);
+        // 2. Identify all question IDs the user has EVER attempted in this course
+        List<Long> allAttemptedQuestionIds = attemptLedgerRepository
+                .findAllAttemptedQuestionIdsByUserIdAndCourseId(userId, courseId);
+
+        // 3. Compute "Ghost Questions" (attempted but NEVER mastered): Attempted minus Mastered
+        List<Long> unmasteredQuestionIds = new ArrayList<>(allAttemptedQuestionIds);
+        unmasteredQuestionIds.removeAll(masteredQuestionIds);
+
+        // 4. Prioritize the unmastered questions first, ensuring we only pull from the ADAPTIVE_ROUND pool
+        List<Question> prioritizedPool = questionRepository.findAllById(unmasteredQuestionIds)
+                .stream()
+                .filter(q -> q.getPoolType() == PoolType.ADAPTIVE_ROUND)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // 5. If we still have room in the round, pull fresh questions
+        if (prioritizedPool.size() < limit) {
+            List<Long> excludeIds = new ArrayList<>();
+            excludeIds.addAll(masteredQuestionIds);
+            excludeIds.addAll(unmasteredQuestionIds);
+
+            List<Question> freshQuestions = questionRepository.findAvailableQuestions(
+                    courseId, PoolType.ADAPTIVE_ROUND, excludeIds.isEmpty() ? List.of(-1L) : excludeIds);
+
+            prioritizedPool.addAll(freshQuestions);
         }
 
-        // 4. Shuffle the questions if the author enabled randomization
+        // 6. Practice/Review Fallback: If all questions are fully mastered, load all of them as a review round
+        if (prioritizedPool.isEmpty()) {
+            prioritizedPool = questionRepository.findByLearningObjectiveCourseIdAndPoolType(courseId, PoolType.ADAPTIVE_ROUND);
+        }
+
+        // 7. Apply author's randomization and limit to roundSize
         if (course.isQuestionsRandomized()) {
-            Collections.shuffle(rawPool);
+            Collections.shuffle(prioritizedPool);
         }
 
-        // 5. Slice the pool down to the exact round size requested
-        return rawPool.stream()
-                .limit(limit)
-                .collect(Collectors.toList());
+        return prioritizedPool.stream().limit(limit).collect(Collectors.toList());
     }
 }

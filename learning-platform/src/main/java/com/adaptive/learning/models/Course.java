@@ -72,6 +72,19 @@ public class Course {
     @Column(name = "global_resources_enabled")
     private Boolean globalResourcesEnabled = false;
 
+    /** If true, learning modules are part of this course's adaptive path. */
+    @Column(name = "enable_learning_modules")
+    private Boolean enableLearningModules = true;
+
+    /** If true, a final certification exam is appended after adaptive mastery. */
+    @Column(name = "enable_final_exam")
+    private Boolean enableFinalExam = false;
+
+    /** Controls how the sidebar and navigation buttons behave in the course player. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "navigation_mode", length = 20)
+    private NavigationMode navigationMode = NavigationMode.PROGRESSIVE;
+
     // --- Getters and Setters ---
 
     public Long getId() { return id; }
@@ -130,4 +143,13 @@ public class Course {
 
     public Boolean getGlobalResourcesEnabled() { return globalResourcesEnabled; }
     public void setGlobalResourcesEnabled(Boolean globalResourcesEnabled) { this.globalResourcesEnabled = globalResourcesEnabled; }
+
+    public Boolean getEnableLearningModules() { return enableLearningModules; }
+    public void setEnableLearningModules(Boolean enableLearningModules) { this.enableLearningModules = enableLearningModules; }
+
+    public Boolean getEnableFinalExam() { return enableFinalExam; }
+    public void setEnableFinalExam(Boolean enableFinalExam) { this.enableFinalExam = enableFinalExam; }
+
+    public NavigationMode getNavigationMode() { return navigationMode; }
+    public void setNavigationMode(NavigationMode navigationMode) { this.navigationMode = navigationMode; }
 }

@@ -19,6 +19,8 @@
 [x] **WebDAV/IIS Reserved Endpoint Bypass:** Migrated `/modules` API endpoints and controllers to `/learning-modules` to bypass Windows network and WebDAV file proxy keyword blocks.
 [x] **Resource Lifecycle Service Fix:** Patched Java compilation errors by removing non-existent getters/setters on `IntroPage` models.
 [x] **Course Player Navigation Sort Patched:** Resolved `NaN` sorting errors by mapping course content sorting to the correct `displayOrder` property.
+[x] **Spaced Repetition Questions Mismatch Fix:** Solved a critical bug in `RoundGeneratorService` by computing unmastered questions as attempted question IDs minus mastered question IDs, avoiding historical fail-logs from re-adding mastered questions.
+[x] **Round Pool Leak Prevention:** Added a strict `PoolType.ADAPTIVE_ROUND` filter to prioritized question pools to prevent Final Exam questions from leaking into adaptive learning rounds.
 
 ## Pending Action Items: Advanced Media Wrappers & Authoring Enhancements
 
