@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/authoring")
-@CrossOrigin(origins = "http://localhost:5173") // Enables safe communication with your React frontend
 public class AuthoringController {
 
     @Autowired

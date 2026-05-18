@@ -16,7 +16,7 @@ public class LearningObjective {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // This creates the relationship mapping back to the Course table
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;

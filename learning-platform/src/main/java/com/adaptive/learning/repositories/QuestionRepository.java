@@ -22,4 +22,6 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     // If no questions are mastered yet, our 'NOT IN' list will be empty, which can break SQL. 
     // So we also need a fallback method to pull everything when there are zero mastered questions.
     List<Question> findByLearningObjectiveCourseIdAndPoolType(Long courseId, PoolType poolType);
+
+    List<Question> findByLearningObjectiveCourseId(Long courseId);
 }

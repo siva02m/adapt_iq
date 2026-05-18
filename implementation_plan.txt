@@ -1,0 +1,59 @@
+# AdaptIQ Enterprise Learning Platform - Implementation Plan
+
+## Completed Action Items
+[x] Implement collapsible sidebar with icon-only view for expanded workspace.
+[x] Refactor Learning Modules into a list-based layout with Duplicate, Move Up, Move Down, Delete, and Edit actions.
+[x] Refactor Intro Pages to use the same list-based layout and Block Editor.
+[x] Extract a universal full-screen `BlockEditor.jsx` component to power course authoring.
+[x] Fix CSS z-index and CSS Transform stacking context issues for full-screen modals.
+[x] Build `MediaResource` backend entity to support Course-Specific and Global resources.
+[x] Implement backend `multipart/form-data` file upload controllers and configure static file serving.
+[x] Resolve Spring Security blocks on `/uploads/**` and increase multipart upload size limits.
+[x] Build frontend `ResourcesTab.jsx` with tabs (All, Video, Audio, Image, Document).
+[x] Implement drag-and-drop file upload zone and dynamic file-picker accept constraints.
+[x] Add a Resource Picker modal directly inside the `BlockEditor` to browse and instantly upload resources to blocks.
+[x] **Custom Video & Audio Player (`CustomMediaPlayer.jsx`)**: Built with Fully Open, Watched-Only, and Locked seekbar modes.
+[x] **CC / Subtitles:** Added a `.vtt/.srt` parser and custom CC button to display captions directly below the video.
+[x] **Resource Edit & Replace Engine:** Built full `PUT` endpoints and `ResourceLifecycleService` to globally swap URLs when files are replaced.
+[x] **Database Schema Fix (Learning Modules):** Fixed the `403 Forbidden` save failure on learning modules by dropping the obsolete NOT NULL `content` column on Spring Boot startup via programmatic JDBC upgrade, resolving Hibernate statement failures.
+[x] **WebDAV/IIS Reserved Endpoint Bypass:** Migrated `/modules` API endpoints and controllers to `/learning-modules` to bypass Windows network and WebDAV file proxy keyword blocks.
+[x] **Resource Lifecycle Service Fix:** Patched Java compilation errors by removing non-existent getters/setters on `IntroPage` models.
+[x] **Course Player Navigation Sort Patched:** Resolved `NaN` sorting errors by mapping course content sorting to the correct `displayOrder` property.
+
+## Pending Action Items: Advanced Media Wrappers & Authoring Enhancements
+
+### 1. Image Displayer & Editor (Moved to Authoring Panel)
+Enhance the **Image Block** in `BlockEditor.jsx` to allow authoring modifications.
+- [ ] **Alignment Controls:** UI buttons to align the image (Left, Center, Right).
+- [ ] **Resize Controls:** UI slider or input to set maximum width / scale.
+- [ ] **Crop/Aspect Ratio:** Basic toggles to change CSS `object-fit` and aspect ratio (e.g., 16:9, 4:3, original).
+- [ ] **Persistence:** Ensure these selected properties are saved within the `htmlContent` JSON block so they render correctly on the learner's side.
+
+### 2. PDF / Document Wrapper
+- [ ] **Embed Option:** Provide an explicit toggle for authors to choose if the PDF should be embedded in an `<iframe>` directly on the page.
+- [ ] **Download Option:** Provide a toggle to display the PDF purely as a branded "Download File" button.
+
+## Pending Action Items: Learner Progression & Adaptive Workflow
+
+### Phase 1: Advanced Player Navigation & Locking
+- [x] **Navigation Settings:** Course setting for Navigation Mode (Free Open vs. Progressive Unlock).
+- [x] **Bottom Control Bar:** A sticky bottom bar in the `CoursePlayer` with "Previous" and "Next" buttons.
+- [x] **Content Completion Tracking:** The "Next" button remains disabled until the learner has scrolled to the bottom of the content and all locked media (videos) have finished playing.
+
+### Phase 2: The Adaptive Engine Lifecycle
+- [ ] **1. Introduction Phase:** Learner navigates through all `IntroPages`.
+- [ ] **2. Pre-Assessment Phase:** Left-nav unlocks the "Pre-Assessment". Learner takes the diagnostic test.
+  - [x] **Interactive Assessment UI:** Renders confidence-based learning inputs (Sure, Not Sure, Don't Know).
+  - [x] **Backend Integration:** Saves attempt logs to `attempts_ledger` via `/api/rounds/evaluate`.
+  - [x] **Immediate Question-by-Question Feedback:** Pauses on response to display large colored banners, exact 4-box matrix states (MASTERED, MISINFORMED, etc.), and the custom feedback text.
+  - [x] **Instant Diagnostics Summary:** Grouped scores, objective tags, mastery progress bars, and a historical breakdown of attempt selections and confidence profiles.
+  - [x] **State Persistence:** Preserves diagnostic score sheets when learners navigate back and forth.
+- [ ] **3. The Adaptive Split:** Backend calculates scores per Learning Objective (LO). The system automatically hides/skips Learning Modules for LOs the learner already mastered, and only unlocks the modules for LOs they failed.
+- [ ] **4. Remediation Phase:** Learner goes through their customized path of unlocked `LearningModules`.
+- [ ] **5. Final Assessment (FA) Phase:** Learner takes the final exam.
+- [ ] **6. Results & Certification:** A final results page showing scores, completion status, and feedback.
+
+## Next Immediate Steps
+1. Test immediate feedback screens (especially targeting the `MISINFORMED` state by guessing wrong with High Confidence!).
+2. Verify dynamic skipping of seeded learning modules based on 100% vs low-percentage diagnostic scores.
+3. Review certification exam workflow and results card.
