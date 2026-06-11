@@ -22,8 +22,22 @@ public class LearningModuleController {
         this.courseRepository = courseRepository;
     }
 
+    /**
+     * GET /api/courses/{courseId}/learning-modules
+     * Optional query param: loIds (comma-separated Long values, e.g. ?loIds=1,2,3)
+     * When loIds is provided, returns only modules whose learningObjective.id is in that list.
+     * When absent, returns all modules for the course (original behaviour).
+     */
     @GetMapping
-    public ResponseEntity<List<LearningModule>> getByCourse(@PathVariable Long courseId) {
+    public ResponseEntity<List<LearningModule>> getByCourse(
+            @PathVariable Long courseId,
+            @RequestParam(required = false) List<Long> loIds) {
+
+        if (loIds != null && !loIds.isEmpty()) {
+            return ResponseEntity.ok(
+                moduleRepository.findByCourseIdAndLearningObjectiveIdInOrderByDisplayOrderAsc(courseId, loIds)
+            );
+        }
         return ResponseEntity.ok(moduleRepository.findByCourseIdOrderByDisplayOrderAsc(courseId));
     }
 

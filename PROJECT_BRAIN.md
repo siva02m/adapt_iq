@@ -367,12 +367,12 @@ File: `admin/ReportingDashboard.jsx` + `ReportController.java`
 | 4 | IDE false-positive: `findAllAttemptedQuestionIdsByUserId` undefined | AttemptLedgerRepository | ✅ FIXED (IDE cache issue) |
 | 5 | AUTHOR cannot access Learning canvas | main.jsx routes | ❌ OPEN |
 | 6 | AUTHOR cannot access Reports | ReportController @PreAuthorize | ❌ OPEN |
-| 7 | Round results screen not shown after each round | CoursePlayer.jsx | ❌ OPEN |
-| 8 | Navigation mode hardcoded to progressive | CoursePlayer.jsx | ❌ OPEN |
-| 9 | Final exam uses same quiz engine as adaptive (has feedback + confidence) | CoursePlayer.jsx | ❌ OPEN |
-| 10 | Learning modules not dynamically injected based on LO mastery | CoursePlayer.jsx | ❌ OPEN |
+| 7 | Round results screen not shown after each round | CoursePlayer.jsx | ✅ FIXED (Task 1.2) |
+| 8 | Navigation mode hardcoded to progressive | CoursePlayer.jsx | ✅ FIXED (Task 1.4) |
+| 9 | Final exam uses same quiz engine as adaptive (has feedback + confidence) | CoursePlayer.jsx | ✅ FIXED (Task 1.4) |
+| 10 | Learning modules not dynamically injected based on LO mastery | CoursePlayer.jsx | ✅ FIXED (Task 1.3) |
 | 11 | Publish button in TopBar not implemented | TopBar.jsx | ❌ OPEN |
-| 12 | enableLearningModules / enableFinalExam settings ignored in player | Course.java missing fields | ❌ OPEN |
+| 12 | enableLearningModules / enableFinalExam settings ignored in player | Course.java missing fields | ✅ FIXED (Task 1.3/1.4) |
 
 ---
 
@@ -400,28 +400,36 @@ After the last question of each adaptive round, shows an inline "Round X Complet
 - [x] Assessment Intro card now shows "Start Round N" on subsequent rounds
 - [x] "Next Round" button hidden when all questions in the round were mastered
 
-#### Task 1.3 — Dynamic Module Injection ❌ TODO
+#### Task 1.3 — Dynamic Module Injection ✅ DONE
 After each adaptive round, modules whose LO matches unmastered question LOs are
 injected into the playlist before the next round.
-- [ ] After round, collect unmastered LO IDs from `userAnswers`
-- [ ] Fetch modules for those LO IDs from backend `GET /api/learning-modules?courseId=&loId=`
-- [ ] Add fetched modules to playlist dynamically (after current index)
-- [ ] Lock next round until all injected modules are completed
+- [x] After round, collect unmastered LO IDs from `allRoundAnswers`
+- [x] Added `loIds` query param to `GET /api/courses/{courseId}/learning-modules?loIds=1,2,3`
+- [x] Added `findByCourseIdAndLearningObjectiveIdInOrderByDisplayOrderAsc` to `LearningModuleRepository`
+- [x] Injected modules inserted into playlist after current assessment index
+- [x] `seenModuleIds` Set prevents re-injection across rounds
+- [x] Next round locked until learner completes injected modules
+- [x] Injected modules styled differently in sidebar (📘 Recommended Study section, indigo colour)
 
-#### Task 1.4 — Final Exam Player Mode ❌ TODO
+#### Task 1.4 — Final Exam Player Mode ✅ DONE
 Final exam questions use `FINAL_EXAM` pool. No confidence meter, no feedback,
 forward-only, show only % score at the end.
-- [ ] In `startAssessment('FINAL_EXAM')`, set `examMode = 'FINAL'` flag
-- [ ] Hide confidence meter when `examMode === 'FINAL'`
-- [ ] Disable Previous button during final exam
-- [ ] On last question submit: compute % score, show pass/fail screen
-- [ ] If passed (>= passingScorePercent): show certificate download button
-- [ ] If failed: show "Try Again" button (reset exam state only, not adaptive progress)
+- [x] `examMode` state: `null | 'ADAPTIVE' | 'FINAL'` set in `startAssessment()`
+- [x] Confidence meter hidden when `examMode === 'FINAL'`
+- [x] Inline feedback hidden in FINAL mode; questions advance immediately on submit
+- [x] Previous button and bottom nav bar hidden during final exam
+- [x] Pass/fail screen with score vs `course.passingScorePercent`
+- [x] Certificate download (browser print, styled HTML) on pass
+- [x] "Try Again" resets exam state only — adaptive progress preserved
+- [x] Navigation mode (`course.navigationMode`) now respected — hardcoded `isProgressive=true` removed
 
-#### Task 1.5 — End-of-Course Results + Review ❌ TODO
-- [ ] Final results screen: all questions in collapsible list with attempt history
-- [ ] "Review Questions" button: page-by-page view, attempt history, feedback audit
-- [ ] Certificate generation (simple HTML → print/PDF)
+#### Task 1.5 — End-of-Course Results + Review ✅ DONE
+- [x] Rich results screen: KPI cards (Mastered/Doubtful/Misinformed/Uninformed counts), overall mastery progress bar, LO breakdown bars
+- [x] Final exam result banner with score and "Download Certificate" shortcut (if passed)
+- [x] Collapsible question list — all questions colour-coded by matrix state, expand to see your answer / correct answer / confidence / objective / tags
+- [x] "Expand All" / "Collapse All" controls for the question list
+- [x] "Review Questions" button → page-by-page review mode with progress bar, dot nav, and per-question knowledge-state explanation
+- [x] Certificate download accessible from results page (if final exam passed)
 
 ### Priority 2 — Question Feedback Model
 1. Add `feedbackForSure`, `feedbackForNotSure`, `feedbackForDontKnow`, `coreFeedback` to `Question.java`
@@ -545,5 +553,5 @@ Stored as JSON array in `htmlContent` / `blocksJson` columns.
 
 ---
 
-*Last updated: 2026-05-18 — Covers all work done up to this date.*
+*Last updated: 2026-06-11 — Tasks 1.3 (Dynamic Module Injection) and 1.4 (Final Exam Player Mode) completed.*
 *Update this file whenever a new feature is completed or a new bug is found.*
